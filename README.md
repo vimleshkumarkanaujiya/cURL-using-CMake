@@ -4,41 +4,19 @@ A sample CMakeLists.txt file for building source with the cURL library
 
 Code :
 
-``` cpp
-#include <crow.h>
+``` cmake
 
-int main()
-{
-    crow::SimpleApp app;
+cmake_minimum_required(VERSION 3.0)
+project(XYZ)
 
-    CROW_ROUTE(app, "/")
-    ([]() {
-        // Get the index.html file
-        std::ifstream file("index.html");
-        if (file) {
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            return buffer.str();
-        } else {
-            return "Error: Failed to load index.html";
-        }
-    });
+# Find libcurl
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
 
-    CROW_ROUTE(app, "/static/<string>")
-    ([](const std::string& filename) {
-        // Get static files (CSS, JavaScript, etc.)
-        std::ifstream file("static/" + filename);
-        if (file) {
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            crow::response res(buffer.str());
-            res.set_header("Content-Type", "text/" + crow::mustache::extension(filename));
-            return res;
-        } else {
-            return crow::response(404, "File not found");
-        }
-    });
+# Add your source files
+add_executable(${PROJECT_NAME} your_source_files.cpp)
 
-    app.port(8080).multithreaded().run();
-}
+# Link against libcurl
+target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES})
+
 ```
